@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sorry Divya 🎈</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(180deg, #ffd6e8 0%, #ffe9f3 40%, #fff5f8 100%);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 30px;
+  }
+
+  h1 {
+    color: #d6336c;
+    font-size: 1.6rem;
+    margin: 0 0 4px 0;
+    text-align: center;
+    z-index: 5;
+  }
+
+  p.sub {
+    color: #a8437b;
+    margin: 0 0 10px 0;
+    font-size: 0.95rem;
+    z-index: 5;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  #stage {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    height: 70vh;
+    flex-shrink: 0;
+  }
+
+  .balloon {
+    position: absolute;
+    bottom: -140px;
+    width: 70px;
+    height: 90px;
+    border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+    cursor: pointer;
+    box-shadow: inset -8px -8px 15px rgba(0,0,0,0.15), inset 8px 8px 15px rgba(255,255,255,0.3);
+    animation: floatUp linear forwards;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.4rem;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .balloon::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    width: 2px;
+    height: 50px;
+    background: rgba(150,150,150,0.6);
+    transform: translateX(-50%);
+  }
+
+  .balloon.popped {
+    animation: none !important;
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); }
+    50% { transform: translateY(-50vh) translateX(15px) rotate(3deg); }
+    100% { transform: translateY(-100vh) translateX(-10px) rotate(-3deg); }
+  }
+
+  #message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    text-align: center;
+    z-index: 10;
+    background: white;
+    padding: 30px 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(214, 51, 108, 0.35);
+    transition: transform 0.5s cubic-bezier(.34,1.56,.64,1);
+    max-width: 85%;
+  }
+
+  #message.show {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  #message h2 {
+    color: #d6336c;
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+  }
+
+  #message p {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  #message .hearts {
+    font-size: 1.6rem;
+    margin-top: 10px;
+  }
+
+  #progress {
+    z-index: 5;
+    color: #a8437b;
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+
+  .confetti {
+    position: fixed;
+    top: -10px;
+    font-size: 1.5rem;
+    animation: fall linear forwards;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0.3; }
+  }
+</style>
+</head>
+<body>
+
+<h1>A little something for you 🎈</h1>
+<p class="sub">Tap every balloon before it floats away...</p>
+<div id="progress">Popped: 0 / 8</div>
+<div id="stage"></div>
+
+<div id="message">
+  <h2>Sorry Divya 🥺</h2>
+  <p>I really didn't mean to hurt you.<br>You mean the world to me.<br>Please forgive me? 💕</p>
+  <div class="hearts">💖 🌸 💖</div>
+</div>
+
+<script>
+  const colors = ['#ff6b9d', '#ffb347', '#a29bfe', '#55efc4', '#74b9ff', '#fd79a8', '#ffeaa7', '#81ecec'];
+  const stage = document.getElementById('stage');
+  const progressEl = document.getElementById('progress');
+  const message = document.getElementById('message');
+  const totalBalloons = 8;
+  let popped = 0;
+
+  function spawnBalloon(i) {
+    const b = document.createElement('div');
+    b.className = 'balloon';
+    b.style.background = colors[i % colors.length];
+    b.style.left = (5 + Math.random() * 80) + '%';
+    const duration = 7 + Math.random() * 4;
+    b.style.animationDuration = duration + 's';
+    b.style.animationDelay = (Math.random() * 2) + 's';
+    b.textContent = '♥';
+
+    b.addEventListener('click', () => popBalloon(b));
+    b.addEventListener('touchstart', (e) => { e.preventDefault(); popBalloon(b); }, {passive: false});
+
+    // remove if it floats off screen without being popped, then respawn
+    b.addEventListener('animationend', () => {
+      if (!b.classList.contains('popped')) {
+        b.remove();
+        spawnBalloon(i);
+      }
+    });
+
+    stage.appendChild(b);
+  }
+
+  function popBalloon(b) {
+    if (b.classList.contains('popped')) return;
+    b.classList.add('popped');
+    popped++;
+    progressEl.textContent = `Popped: ${popped} / ${totalBalloons}`;
+    burstConfetti(b);
+    setTimeout(() => b.remove(), 300);
+
+    if (popped >= totalBalloons) {
+      setTimeout(() => {
+        message.classList.add('show');
+        launchConfettiShower();
+      }, 400);
+    }
+  }
+
+  function burstConfetti(b) {
+    const rect = b.getBoundingClientRect();
+    for (let i = 0; i < 6; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.textContent = ['💖','✨','🌸','💕'][Math.floor(Math.random()*4)];
+      c.style.left = (rect.left + rect.width/2) + 'px';
+      c.style.top = rect.top + 'px';
+      c.style.animationDuration = (1 + Math.random()) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 2000);
+    }
+  }
+
+  function launchConfettiShower() {
+    for (let i = 0; i < 40; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.textContent = ['💖','✨','🌸','💕','🎈'][Math.floor(Math.random()*5)];
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = '-20px';
+        c.style.animationDuration = (2 + Math.random()*2) + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4500);
+      }, i * 60);
+    }
+  }
+
+  for (let i = 0; i < totalBalloons; i++) {
+    setTimeout(() => spawnBalloon(i), i * 300);
+  }
+</script>
+
+</body>
+</html>
